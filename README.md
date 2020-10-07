@@ -13,3 +13,4 @@ A simple ReClass.NET plugin which allows you to read/write process memory withou
 
 ## Further information that you should be aware of
 * This plugin was intended for 64-bit processes. However, it does support **Wow64** programs, though the reliability has not been tested. Check it yourself before use.
+* Should you want to run this under production environment, sign the driver with EV Code-signing cert or OV Code-signing cert (with secure boot disabled).
