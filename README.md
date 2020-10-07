@@ -5,7 +5,7 @@ A simple ReClass.NET plugin which allows you to read/write process memory withou
 ## Why bother?
 
 * The pre-existing plugins on Github provide the ability to work through driver. However, most of them are written in c++ while the ReClass.NET is, of course, made with C#.
-* Numbers of those plugins do not enumerate process modules through driver but `CreateToolhelp32Snapshot`. This can be a problem with protected process (EAC, BE, etc.)
+* Many of those plugins do not enumerate process modules through their driver but `CreateToolhelp32Snapshot`. This can be a problem with protected processes (EAC, BE, etc.).
 
 ## Todo, or not todo?
 - [ ] Implement enumerate sections
