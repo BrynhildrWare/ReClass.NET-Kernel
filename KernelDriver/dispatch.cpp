@@ -6,8 +6,19 @@ NTSTATUS KdReadProcessMemory(HANDLE ProcessId, PVOID SourceAddress, PVOID Target
 	NTSTATUS Status;
 	PEPROCESS SourceProcess;
 	if (NT_SUCCESS(Status = PsLookupProcessByProcessId(ProcessId, &SourceProcess))) {
+		KAPC_STATE State;
+		KeStackAttachProcess(SourceProcess, &State);
 		__try {
 			ProbeForRead(SourceAddress, Size, 1);
+			KeUnstackDetachProcess(&State);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			KeUnstackDetachProcess(&State);
+			ObDereferenceObject(SourceProcess);
+			return STATUS_ACCESS_VIOLATION;
+		}
+
+		__try {
 			ProbeForWrite(TargetAddress, Size, 1);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
@@ -31,9 +42,21 @@ NTSTATUS KdWriteProcessMemory(HANDLE ProcessId, PVOID SourceAddress, PVOID Targe
 	if (NT_SUCCESS(Status = PsLookupProcessByProcessId(ProcessId, &TargetProcess))) {
 		__try {
 			ProbeForRead(SourceAddress, Size, 1);
-			ProbeForWrite(TargetAddress, Size, 1);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
+			ObDereferenceObject(TargetProcess);
+			return STATUS_ACCESS_VIOLATION;
+		}
+
+		KAPC_STATE State;
+		KeStackAttachProcess(TargetProcess, &State);
+
+		__try {
+			ProbeForWrite(TargetAddress, Size, 1);
+			KeUnstackDetachProcess(&State);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			KeUnstackDetachProcess(&State);
 			ObDereferenceObject(TargetProcess);
 			return STATUS_ACCESS_VIOLATION;
 		}
